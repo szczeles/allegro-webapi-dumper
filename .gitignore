@@ -1,0 +1,6 @@
+.credentials
+items.*.txt
+journal.*.txt
+*.pyc
+*.sq3
+*.log
