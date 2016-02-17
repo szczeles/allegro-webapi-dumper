@@ -8,6 +8,9 @@ import time
 import io
 import sys
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 queue = ItemsQueue('queue.sq3')
 
 def today_date():
@@ -48,6 +51,7 @@ while True:
         futures[idx] = None
       except:
         print("Chunk failed", sample[idx * 25:idx *25 + 25])
+        print(sys.exc_info()[1])
 
       sys.stdout.write('.' if len(done) == 25 else '+')
       sys.stdout.flush()

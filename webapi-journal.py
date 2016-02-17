@@ -13,7 +13,7 @@ def today_date():
 def dumpitems(items):
   with open("journal.%s.txt" % today_date(), "a+") as journal:
     for item in items:
-      if item['changeType'] == 'now':
+      if item['changeType'] in ('now', 'start'):
         queue.addNew(item['itemId'])
       journal.write(json.dumps(item) + "\n")
 
