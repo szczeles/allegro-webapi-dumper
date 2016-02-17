@@ -18,14 +18,8 @@ class ItemsQueue:
 	self.cur = self.conn.cursor()
 	self.cur.execute(self.SCHEMA)
 	
-    def addNew(self, item, force=False):
-        try: 
-	    self.cur.execute('INSERT INTO itemsqueue VALUES (?, ?)', (item, self.WAITING))
-	    self.commit()
-	except sqlite3.IntegrityError:
-	    if force:
-	      self.markStatus(item, self.WAITING)
-	      self.commit()
+    def addNew(self, item):
+        self.cur.execute('INSERT OR IGNORE INTO itemsqueue VALUES (?, ?)', (item, self.WAITING))
 
     def markStatus(self, item, status):
 	self.cur.execute('UPDATE itemsqueue SET status=? WHERE itemid=?', (status, item))

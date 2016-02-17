@@ -29,7 +29,7 @@ def mark_status(ids, status):
       queue.markStatus(id, status)
 
 allegro = Allegro()
-allegro.loadCredentials('.credentials')
+allegro.load_credentials('.credentials')
 concurrency = 5
 
 while True:
@@ -50,8 +50,7 @@ while True:
         queue.commit()
         futures[idx] = None
       except:
-        print("Chunk failed", sample[idx * 25:idx *25 + 25])
-        print(sys.exc_info()[1])
+        print("Chunk failed", sample[idx * 25:idx *25 + 25], sys.exc_info()[1])
 
       sys.stdout.write('.' if len(done) == 25 else '+')
       sys.stdout.flush()

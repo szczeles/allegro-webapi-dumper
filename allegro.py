@@ -18,43 +18,38 @@ class Allegro:
             logging.basicConfig(level=logging.INFO)
             logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-    def loadCredentials(self, filename):
+    def load_credentials(self, filename):
         config = ConfigParser.RawConfigParser()
 	config.read(filename)
-	self.loginEnc(
-	    config.get('allegro', 'api_key'), 
-	    config.get('allegro', 'login'), 
-	    config.get('allegro', 'password_enc'), 
-	    config.getint('allegro', 'country_code')
-	)
+	self.credentials = {
+	  'api_key': config.get('allegro', 'api_key'), 
+	  'login': config.get('allegro', 'login'), 
+	  'password_enc': config.get('allegro', 'password_enc'), 
+	  'country_code': config.getint('allegro', 'country_code')
+	}
  
-    def _get_version_by_country_code(self, country_code):
+    def _get_version_by_country_code(self):
         systems = self.service.doQueryAllSysStatus(**{
-            'countryId': country_code,
-            'webapiKey':self.api_key
+            'countryId': self.credentials['country_code'],
+            'webapiKey': self.credentials['api_key']
         })[0]
  
         for sys in systems:
-            if sys['countryId'] == country_code:
-                return sys['verKey']
+          if sys['countryId'] == self.credentials['country_code']:
+            return sys['verKey']
  
-    def loginEnc(self, api_key, login, password, country_code):
-        try:
-	    self.api_key = api_key
-            self.version_key = self._get_version_by_country_code(country_code)
-            self.auth = self.service.doLoginEnc(**{
-                'userLogin': login,
-                'userHashPassword': password,
-                'countryCode': country_code,
-                'webapiKey' : self.api_key,
-                'localVersion' : self.version_key
-            })
-        except WebFault as ex:
-            print ex
+    def _perform_login(self):
+        self.version_key = self._get_version_by_country_code()
+        self.auth = self.service.doLoginEnc(**{
+          'userLogin': self.credentials['login'],
+          'userHashPassword': self.credentials['password_enc'],
+          'countryCode': self.credentials['country_code'],
+          'webapiKey' : self.credentials['api_key'],
+          'localVersion' : self.version_key
+        })['sessionHandlePart']
 
     def getSiteJournal(self, journalStart):
-        items = self.service.doGetSiteJournal(**{
-	    'sessionHandle': self.auth['sessionHandlePart'],
+        items = self._call_api('doGetSiteJournal', {
 	    'startingPoint': journalStart,
 	    'infoType': 1
 	})['item']
@@ -77,11 +72,21 @@ class Allegro:
                 out[k] = v
         return out
 
+    def _call_api(self, method_name, params):
+        f = getattr(self.service, method_name)
+	params['sessionHandle'] = self.auth
+	try: 
+	  return f(**params)
+	except WebFault as exception:
+	  if exception.fault.faultcode in ['ERR_NO_SESSION', 'ERR_SESSION_EXPIRED']:
+	    self._perform_login()
+	    return self._call_api(method_name, params)
+	  raise
+
     def getItemsInfo(self, items, getDesc=False, getImageUrl=True, getAttribs=True, getPostageOptions=True, getCompanyInfo=True):
         arr = self.client.factory.create('tns:ArrayOfLong')
 	arr.item = items
-        result = self.service.doGetItemsInfo(**{
-	    'sessionHandle': self.auth['sessionHandlePart'],
+        result = self._call_api('doGetItemsInfo', {
 	    'itemsIdArray': arr,
 	    'getDesc' : int(getDesc),
 	    'getImageUrl' : int(getImageUrl),
@@ -99,10 +104,12 @@ class Allegro:
 	return found, not_found, killed
 
     def getBidItem(self, itemid):
-        raw_bids = self.service.doGetBidItem2(**{
-	    'sessionHandle': self.auth['sessionHandlePart'],
-	    'itemId': itemid
-	})['item']
-	bids = [data['bidsArray']['item'] for data in raw_bids]
+        #raw_bids = self.service.doGetBidItem2(**{
+	#    'sessionHandle': self.auth['sessionHandlePart'],
+	#    'itemId': itemid
+	#})['item']
+	#bids = [data['bidsArray']['item'] for data in raw_bids]
 	# TODO
-	return bids#[asdict(item) for item in items]
+	#return bids#[asdict(item) for item in items]
+	pass
+

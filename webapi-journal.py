@@ -11,10 +11,14 @@ def today_date():
   return datetime.datetime.now().strftime("%Y-%m-%d")
 
 def dumpitems(items):
+  for item in items:
+    if item['changeType'] in ('now', 'start'):
+      queue.addNew(item['itemId'])
+
+  queue.commit()
+
   with open("journal.%s.txt" % today_date(), "a+") as journal:
     for item in items:
-      if item['changeType'] in ('now', 'start'):
-        queue.addNew(item['itemId'])
       journal.write(json.dumps(item) + "\n")
 
     print('Currently at %s, gathered events: %d' % (datetime.datetime.fromtimestamp(item['changeDate']).strftime('%Y-%m-%d %H:%M:%S'), len(items)))
@@ -33,7 +37,7 @@ def get_starting_point():
 queue = ItemsQueue('queue.sq3')
 
 allegro = Allegro()
-allegro.loadCredentials('.credentials')
+allegro.load_credentials('.credentials')
 
 start = get_starting_point()
 print("Starting from %d" % start)
