@@ -12,7 +12,7 @@ def today_date():
 
 def dumpitems(items):
   for item in items:
-    if item['changeType'] in ('now', 'start'):
+    if item['changeType'] == 'now':
       queue.addNew(item['itemId'])
 
   queue.commit()
