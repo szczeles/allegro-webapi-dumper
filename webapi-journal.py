@@ -12,7 +12,7 @@ def today_date():
 
 def dumpitems(items):
   for item in items:
-    if item['changeType'] == 'now':
+    if item['changeType'] in ('now', 'end'):
       queue.addNew(item['itemId'])
 
   queue.commit()
@@ -43,7 +43,7 @@ start = get_starting_point()
 print("Starting from %d" % start)
 
 while True:
-  items = allegro.getSiteJournal(start)
+  items = allegro.get_site_journal(start)
   if len(items) > 0:
     dumpitems(items)
     start=items[-1]['rowId']

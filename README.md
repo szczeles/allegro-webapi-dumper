@@ -1,5 +1,8 @@
 # allegro-webapi-dumper
 Tool that users allegro.pl webapi to download events journal and items info
+Written in Python 3.4, requires pysimplesoap installed form github:
+
+    pip3 install git+git://github.com/pysimplesoap/pysimplesoap.git
 
 ### webapi-journal
 
