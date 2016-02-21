@@ -23,6 +23,9 @@ class ItemsQueue:
 	def markStatus(self, item, status):
 		self.cur.execute('UPDATE itemsqueue SET status=? WHERE itemid=?', (status, item))
 
+	def remove(self, item):
+		self.cur.execute('DELETE FROM itemsqueue WHERE itemid=?', (item,))
+
 	def getWaiting(self, limit):
 		self.cur.execute('SELECT itemid FROM itemsqueue WHERE status=? LIMIT ?', (self.WAITING, limit))
 		return [result[0] for result in self.cur.fetchall()]

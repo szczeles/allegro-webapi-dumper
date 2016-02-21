@@ -8,13 +8,14 @@ import time
 import io
 import sys
 
-queue = ItemsQueue('queue.sq3')
+queue = ItemsQueue(sys.argv[1])
+filebase = sys.argv[2]
 
 def today_date():
   return datetime.datetime.now().strftime("%Y-%m-%d")
 
 def dumpitems(items):
-  with io.open("items.%s.txt" % today_date(), "a+", encoding='utf8') as itemsfile:
+  with io.open("%s.%s.txt" % (filebase, today_date()), "a+", encoding='utf8') as itemsfile:
     for item in items:
       mark_status([item['itemInfo']['itId']], ItemsQueue.DONE)
       j = json.dumps(item, ensure_ascii=False)
@@ -26,7 +27,7 @@ def mark_status(ids, status):
 
 allegro = Allegro()
 allegro.load_credentials('.credentials')
-concurrency = 10
+concurrency = int(sys.argv[3])
 
 while True:
   sample = queue.getWaiting(50000)

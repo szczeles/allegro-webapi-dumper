@@ -72,7 +72,7 @@ class Allegro:
 		})
 		not_found = [item['item'] for item in result['arrayItemsNotFound']] if 'arrayItemsNotFound' not in result['arrayItemsNotFound'][0] else []
 		killed = [item['item'] for item in result['arrayItemsAdminKilled']] if 'arrayItemsAdminKilled' not in result['arrayItemsAdminKilled'][0] else []
-		found = result['arrayItemListInfo']['item'] if 'item' in result['arrayItemListInfo'] else []
+		found = result['arrayItemListInfo']['item'] if result['arrayItemListInfo'] != None and 'item' in result['arrayItemListInfo'] else []
 		return found, not_found, killed
 '''
     def getBidItem(self, itemid):

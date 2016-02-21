@@ -12,10 +12,14 @@ def today_date():
 
 def dumpitems(items):
   for item in items:
-    if item['changeType'] in ('now', 'end'):
+    if item['changeType'] == 'now':
       queue.addNew(item['itemId'])
+    elif item['changeType'] == 'end':
+      finished.addNew(item['itemId'])
+      queue.remove(item['itemId'])
 
   queue.commit()
+  finished.commit()
 
   with open("journal.%s.txt" % today_date(), "a+") as journal:
     for item in items:
@@ -35,6 +39,7 @@ def get_starting_point():
   return start
 
 queue = ItemsQueue('queue.sq3')
+finished = ItemsQueue('finished.sq3')
 
 allegro = Allegro()
 allegro.load_credentials('.credentials')
