@@ -61,6 +61,16 @@ class Allegro:
 				return self._call_api(method_name, params)
 			raise
 
+	def _repair_item(self, item):
+		for key in ('itemImages', 'itemPostageOptions', 'itemCats', 'itemAttribs'):
+			item[key] = item[key]['item'] if item[key] != None else []
+		attribs = []
+		for attrib in item['itemAttribs']:
+			attribs.append({'attribName': attrib['attribName'], 'attribValues': list(map(lambda a: a['item'], filter(lambda a: 'item' in a, attrib['attribValues'])))}) 
+		item['itemAttribs'] = attribs
+		item.pop('itemProductInfo', None)
+		return item
+
 	def get_items_info(self, items, getDesc=False, getImageUrl=True, getAttribs=True, getPostageOptions=True, getCompanyInfo=True):
 		result = self._call_api('doGetItemsInfo', {
 			'itemsIdArray': [{'item': item} for item in items],
@@ -72,7 +82,7 @@ class Allegro:
 		})
 		not_found = [item['item'] for item in result['arrayItemsNotFound']] if 'arrayItemsNotFound' not in result['arrayItemsNotFound'][0] else []
 		killed = [item['item'] for item in result['arrayItemsAdminKilled']] if 'arrayItemsAdminKilled' not in result['arrayItemsAdminKilled'][0] else []
-		found = result['arrayItemListInfo']['item'] if result['arrayItemListInfo'] != None and 'item' in result['arrayItemListInfo'] else []
+		found = list(map(self._repair_item, result['arrayItemListInfo']['item'])) if result['arrayItemListInfo'] != None and 'item' in result['arrayItemListInfo'] else []
 		return found, not_found, killed
 '''
     def getBidItem(self, itemid):

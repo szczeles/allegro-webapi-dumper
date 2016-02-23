@@ -1,5 +1,4 @@
 # coding: utf-8
-from itemsqueue import ItemsQueue
+from dumperqueue import DumperQueue
  
-print("Now", ItemsQueue('queue.sq3').getStats())
-print("End", ItemsQueue('finished.sq3').getStats())
+print(DumperQueue('dumper.sq3').get_stats())
