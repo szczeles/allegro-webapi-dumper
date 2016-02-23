@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 from dumperqueue import DumperQueue
 from allegro import Allegro
