@@ -1,4 +1,5 @@
-# coding: utf-8
+#!/usr/bin/python3
+
 from itemsqueue import ItemsQueue
 from allegro import Allegro
 import json
@@ -14,8 +15,12 @@ def dumpitems(items):
   for item in items:
     if item['changeType'] == 'now':
       queue.addNew(item['itemId'])
+    elif item['changeType'] == 'end':
+      finished.addNew(item['itemId'])
+      queue.remove(item['itemId'])
 
   queue.commit()
+  finished.commit()
 
   with open("journal.%s.txt" % today_date(), "a+") as journal:
     for item in items:
@@ -35,6 +40,7 @@ def get_starting_point():
   return start
 
 queue = ItemsQueue('queue.sq3')
+finished = ItemsQueue('finished.sq3')
 
 allegro = Allegro()
 allegro.load_credentials('.credentials')
@@ -43,7 +49,7 @@ start = get_starting_point()
 print("Starting from %d" % start)
 
 while True:
-  items = allegro.getSiteJournal(start)
+  items = allegro.get_site_journal(start)
   if len(items) > 0:
     dumpitems(items)
     start=items[-1]['rowId']

@@ -1,5 +1,5 @@
 # coding: utf-8
 from itemsqueue import ItemsQueue
  
-queue = ItemsQueue('queue.sq3')
-print(queue.getStats())
+print("Now", ItemsQueue('queue.sq3').getStats())
+print("End", ItemsQueue('finished.sq3').getStats())

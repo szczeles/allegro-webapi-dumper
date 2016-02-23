@@ -1,45 +1,43 @@
-# coding: utf-8
+#!/usr/bin/python3
+
 from itemsqueue import ItemsQueue
 from allegro import Allegro
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 import json
 import datetime
 import time
 import io
 import sys
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
-queue = ItemsQueue('queue.sq3')
+queue = ItemsQueue(sys.argv[1])
+filebase = sys.argv[2]
 
 def today_date():
   return datetime.datetime.now().strftime("%Y-%m-%d")
 
 def dumpitems(items):
-  with io.open("items.%s.txt" % today_date(), "a+", encoding='utf8') as itemsfile:
+  with io.open("%s.%s.txt" % (filebase, today_date()), "a+", encoding='utf8') as itemsfile:
     for item in items:
       mark_status([item['itemInfo']['itId']], ItemsQueue.DONE)
-      j = json.dumps(item, ensure_ascii=False, encoding='utf8')
+      j = json.dumps(item, ensure_ascii=False)
       itemsfile.write(j + "\n")
 
 def mark_status(ids, status):
-  if ids != None:
-    for id in ids:
-      queue.markStatus(id, status)
+  for id in ids:
+    queue.markStatus(id, status)
 
 allegro = Allegro()
 allegro.load_credentials('.credentials')
-concurrency = 5
+concurrency = int(sys.argv[3])
 
 while True:
   sample = queue.getWaiting(50000)
-  print "Will download %d items" % len(sample)
+  print("Will download %d items" % len(sample))
   if len(sample) > 0:
     executor = ThreadPoolExecutor(max_workers=concurrency)
     futures = []
     for chunk in [sample[x:x+25] for x in range(0, len(sample), 25)]:
-      futures.append(executor.submit(allegro.getItemsInfo, chunk))
+      futures.append(executor.submit(allegro.get_items_info, chunk))
 
     for idx, future in enumerate(futures):
       try:
