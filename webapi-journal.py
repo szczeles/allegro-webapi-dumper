@@ -1,4 +1,5 @@
-# coding: utf-8
+#!/usr/bin/python3
+
 from itemsqueue import ItemsQueue
 from allegro import Allegro
 import json
