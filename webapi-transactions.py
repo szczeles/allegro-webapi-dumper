@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 from dumperqueue import DumperQueue
 from allegro import Allegro
@@ -21,7 +21,7 @@ def today_date():
 
 def dump_transactions(transactions):
 	with io.open("transactions.%s.txt" % today_date(), "a+", encoding='utf8') as file:
-		for transactions in transactions:
+		for transaction in transactions:
 			file.write(json.dumps(transaction, ensure_ascii=False) + "\n")
 
 def download_transactions(transactions):
@@ -40,7 +40,7 @@ def download_transactions(transactions):
 			tr_info['transaction'] = {
 				'id': transaction[0],
 				'date': transaction[2],
-				'isBuyNow': transaction[2] == 1
+				'isBuyNow': transaction[3] == 1
 			}
 			transactions_with_items.append(tr_info)
 		if transaction[1] in killed:
@@ -71,6 +71,7 @@ while True:
 			except:
 				print("Chunk failed", list(map(lambda t: t[1], sample[idx * 25:idx *25 + 25])), sys.exc_info()[1])
 				traceback.print_exc()
+				queue.rollback()
 
 			sys.stdout.write('.' if result != None and len(result) == 25 else '+')
 			sys.stdout.flush()
