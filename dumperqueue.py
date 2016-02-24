@@ -42,6 +42,9 @@ class DumperQueue:
 	def commit(self):
 		self.conn.commit()
 
+	def rollback(self):
+		self.conn.rollback()
+
 	def filter_auctions(self, ids):
 		placeholder = '?'
 		placeholders= ', '.join(placeholder for unused in ids)
