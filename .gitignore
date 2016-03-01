@@ -1,8 +1,6 @@
 .credentials
-items.*.txt
-journal.*.txt
-finished.*.txt
-transactions.*.txt
+journal.*.txt*
+transactions.*.txt*
 *.pyc
 *.sq3
 *.sq3-journal
