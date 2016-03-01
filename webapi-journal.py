@@ -14,6 +14,7 @@ def mark_actions(journal):
 	for event in journal:
 		if event['changeType'] == 'now':
 			queue.add_transaction(event['rowId'], event['itemId'], event['changeDate'], True)
+			print("Added now transaction:", event['rowId'])
 		elif event['changeType'] == 'bid':
 			queue.bid_occured(event['itemId'], event['changeDate'])
 
@@ -27,7 +28,8 @@ def mark_auctions_wins(journal):
 
 	only_auctions = queue.filter_auctions(ends)
 	for event in journal:
-		if event['itemId'] in (only_auctions):
+		if event['changeType'] == 'end' and event['itemId'] in (only_auctions):
+			print("Added bid transaction:", event['rowId'])
 			queue.add_transaction(event['rowId'], event['itemId'], event['changeDate'], False)
 
 	queue.commit()
