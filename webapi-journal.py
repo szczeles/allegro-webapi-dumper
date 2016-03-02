@@ -14,7 +14,6 @@ def mark_actions(journal):
 	for event in journal:
 		if event['changeType'] == 'now':
 			queue.add_transaction(event['rowId'], event['itemId'], event['changeDate'], True)
-			print("Added now transaction:", event['rowId'])
 		elif event['changeType'] == 'bid':
 			queue.bid_occured(event['itemId'], event['changeDate'])
 
@@ -29,7 +28,6 @@ def mark_auctions_wins(journal):
 	only_auctions = queue.filter_auctions(ends)
 	for event in journal:
 		if event['changeType'] == 'end' and event['itemId'] in (only_auctions):
-			print("Added bid transaction:", event['rowId'])
 			queue.add_transaction(event['rowId'], event['itemId'], event['changeDate'], False)
 
 	queue.commit()
@@ -41,23 +39,11 @@ def dump_journal(journal):
 
 	print('Currently at %s, gathered events: %d' % (datetime.datetime.fromtimestamp(event['changeDate']).strftime('%Y-%m-%d %H:%M:%S'), len(journal)))
 
-def get_starting_point():
-	start = 0
-	for journal_file in glob.glob('./journal.*.txt'):
-		with open(journal_file, 'rb') as fh:
-			fh.seek(-1024, 2)
-			lastline = fh.readlines()[-1].decode()
-			lastid = int(json.loads(lastline)['rowId'])
-			if lastid > start:
-				start = lastid
-	return start
-
 queue = DumperQueue('dumper.sq3')
 
 allegro = Allegro()
 allegro.load_credentials('.credentials')
-
-start = get_starting_point()
+start = queue.get_status()['last_journal_rowid']
 print("Starting from %d" % start)
 
 while True:
@@ -66,6 +52,7 @@ while True:
 		mark_actions(journal)
 		mark_auctions_wins(journal)
 		dump_journal(journal)
+		queue.set_status(last_journal_rowid=start, last_journal_timestamp=journal[-1]['changeDate'])
 		start=journal[-1]['rowId']
 	if len(journal) < 100:
 		time.sleep(60)
