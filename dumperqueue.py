@@ -25,7 +25,8 @@ class DumperQueue:
 	'''
 	def __init__(self, filename):
 		self.conn = sqlite3.connect(filename, timeout=300)
-		self.conn.execute("PRAGMA busy_timeout = 30000") 
+		self.conn.execute("PRAGMA busy_timeout = 30000")
+		self.conn.execute("PRAGMA journal_mode = WAL")
 		self.cur = self.conn.cursor()
 		self.cur.execute(self.TRANSACTIONS_SCHEMA)
 		self.cur.execute(self.BID_INFO_SCHEMA)
