@@ -4,4 +4,6 @@ transactions.*.txt*
 *.pyc
 *.sq3
 *.sq3-journal
+*.sq3-shm
+*.sq3-wal
 *.log
