@@ -84,14 +84,11 @@ class Allegro:
 		killed = [item['item'] for item in result['arrayItemsAdminKilled']] if 'arrayItemsAdminKilled' not in result['arrayItemsAdminKilled'][0] else []
 		found = list(map(self._repair_item, result['arrayItemListInfo']['item'])) if result['arrayItemListInfo'] != None and 'item' in result['arrayItemListInfo'] else []
 		return found, not_found, killed
-'''
-    def getBidItem(self, itemid):
-        #raw_bids = self.service.doGetBidItem2(**{
-	#    'sessionHandle': self.auth['sessionHandlePart'],
-	#    'itemId': itemid
-	#})['item']
-	#bids = [data['bidsArray']['item'] for data in raw_bids]
-	# TODO
-	#return bids#[asdict(item) for item in items]
-	pass
-'''
+
+	def get_cats_data(self):
+		response = self.client.doGetCatsData(
+			countryId=self.credentials['country_code'],
+			localVersion=0,
+			webapiKey=self.credentials['api_key']
+		)['catsList']['item']
+		return response
